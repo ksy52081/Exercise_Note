@@ -1,4 +1,5 @@
-### 출처
+'''Appendix A : Validation '''
+### 출처 : https://www.pluralsight.com/guides/validating-machine-learning-models-scikit-learn
 ##### Validation 1 : Hold out Validation : 데이터셋을 임의로 train와 test로 나눈다.
 # Evaluate using a train and a test set
 X_train, X_test, Y_train, Y_test = model_selection.train_test_split(x1, y1, test_size=0.30, random_state=100)
