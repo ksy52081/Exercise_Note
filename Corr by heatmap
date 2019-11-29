@@ -1,0 +1,10 @@
+
+
+corr= data25.corr(method='pearson')
+#print(corr["Y"])
+from matplotlib import pyplot as plt
+import seaborn as sns  
+plt.figure(figsize=(13,10))
+sns.heatmap(corr, fmt="g", linewidths=1, cmap='RdBu' ) #,annot=True
+
+###########
