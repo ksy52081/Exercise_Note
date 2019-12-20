@@ -1,0 +1,35 @@
+'''
+참고로 '/content/gdrive' 이 경로는 '구글드라이브에 접속하겠다'입니다. ( 내 구글 
+
+드라이버가 아닌 서버접속)
+
+그러면 아래 와 같은 출력창이 나옵니다. 
+
+1번째 줄은 링크가능한 url 주소 ( 클릭시 내 구글드라이버 연동 코드 생성)
+
+그 아래 코드 넣으라고  네모 칸이 있습니다.
+
+위의 링크를 눌러 구글 동의 후 생성된 코드를 복사해서 넣으시면 잠시 뒤에  
+
+마운트 되었다고 나옵니다.
+
+이러면 사실상 본인의 구글 웹 드라이브와 구글 Colab와 연동된 것입니다.
+'''
+
+
+from google.colab import drive
+
+drive.mount('/content/gdrive')
+
+
+# 테스트 코드
+with open('/content/gdrive/My Drive/foo.txt', 'w') as f:
+
+f.write('Hello Google Drive!')
+
+!cat /content/gdrive/My\ Drive/foo.txt
+
+
+
+
+출처: https://redapply.tistory.com/entry/Colaboratory-구글-드라이브-연동 [Bigcat]
