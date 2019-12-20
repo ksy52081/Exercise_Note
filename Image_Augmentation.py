@@ -88,3 +88,5 @@ data_transforms = {
         transforms.Normalize([0.6000, 0.3946, 0.6041], [0.2124, 0.2335, 0.2360])
     ]),
 '''
+
+### 출처 : https://www.analyticsvidhya.com/blog/2019/12/image-augmentation-deep-learning-pytorch/
