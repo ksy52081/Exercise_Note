@@ -1,0 +1,13 @@
+with 임시테이블1 as (Select~ From ~ where~) 
+     ,임시테이블2 as (Select~ From ~ where~) 
+select
+~
+from 임시테이블1, 임시테이블2.
+
+
+순환 서브 쿼리
+
+select PaperId
+  , LPAD(' ', 3
+  
+출처 : https://logical-code.tistory.com/39
