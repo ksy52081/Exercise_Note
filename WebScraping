@@ -1,0 +1,133 @@
+import requests
+from bs4 import BeautifulSoup
+import csv
+Total_List=[]
+AuthorIDNumList=[7003406059,10240483800,13004800900,7005748472,56515632600,23010729000]
+for AuthorIDNum in AuthorIDNumList:
+    ###########Address#################
+    req = requests.get("https://www.scopus.com/authid/detail.uri?origin=resultslist&authorId=%d&zone=" %AuthorIDNum)
+    soup = BeautifulSoup(req.text, 'html.parser')
+    #7003406059
+    #10240483800
+    #13004800900
+    #7005748472
+    #56515632600 othernoame
+    #23010729000
+    html=req.text
+    header=req.headers
+    status=req.status_code
+    is_ok=req.ok
+ 
+    ###############Find Location########################
+    AuthorName=soup.select('title')
+    hindex=soup.select('span.fontLarge')[0]
+    numofdoc=soup.select('span.fontLarge')[1]
+    OtherName=soup.find(id='otherNameFormatBadges')#.find_all('span.badges')
+    #subjectarea=soup.find('div.otherNameFormatBadges').find_all('span.badges')
+    #subjectarea=soup.find('div.subjectAreaBadges')
+    #subjectarea=soup.select('span.badges')
+    subjectarea=soup.find(id='subjectAreaBadges')
+    PublicationRange=soup.select('div.marginTop1.h4.darkGrayText')#.find_all('span.badges')
+
+
+    ##################PreProcessing: Name##########################
+    AuthorName=soup.find('title').text
+    AuthorName=str(AuthorName)
+    AuthorName=AuthorName.replace('Scopus - Author details (',' ')
+    AuthorName=AuthorName.replace(')', ' ')
+    AuthorName=AuthorName.strip()
+
+    ################PreProcessing : Hindex, Number of Document, ####################
+    #AuthorName=AuthorName.get_text()
+    hindex=int(hindex.get_text())
+    numofdoc=int(numofdoc.get_text())
+
+    ###############PreProcessing : OtherName, #################################
+    if OtherName is None:
+        #print("None")
+        OtherName="N/A"
+    else:
+        #print("trz sthing in hr")
+        OtherName=str(OtherName)
+        OtherName=OtherName.replace('</span> <span class="badges">', ';')
+        OtherName=OtherName.replace('<div class="ellipsisContainer" id="otherNameFormatBadges"> <span class="badges">', ' ')
+        OtherName=OtherName.replace('</span> </div>', ' ')
+        OtherName=OtherName.strip()
+        OtherName=OtherName.split(';')
+        
+
+        #OtherName=OtherName.get_text()
+        #OtherName=OtherName.split(',')
+
+    #print(hindex.get_text())
+    #print(numofdoc.get_text())
+    #print(OtherName.get_text())
+
+    #################PreProcessing : Subject Area (text() 불가능)##############################
+    subjectarea = str(subjectarea)
+    subjectarea=subjectarea.replace('</span>','')
+    subjectarea=subjectarea.replace('</div>','')
+    subjectarea=subjectarea.strip()
+    subjectarea=subjectarea.split('<span class="badges">')
+    t=0
+    for i in subjectarea:
+        #print(subjectarea[t])
+        subjectarea[t]=subjectarea[t].strip()
+        t=t+1
+    del subjectarea[0]
+    #print(subjectarea)
+
+
+    #print(type(subjectarea))
+    #print(subjectarea.get_text())
+
+    ################PreProcessing : PublicationYear (text() 불가능)#################
+    PublicationRange=str(PublicationRange)
+    PublicationRange=PublicationRange.split(':')
+    PublicationRange=PublicationRange[-1]
+    PublicationRange=PublicationRange.split('\n</div>]')
+    PublicationRange=PublicationRange[0]
+    PublicationRange=PublicationRange.split('-')
+    AuthorPubFirst=PublicationRange[0]
+    AuthorPubLast=PublicationRange[1]
+
+
+    #subjectarea=subjectarea.get_text()
+    #PublicationRange=PublicationRange.get_text()
+
+    #hindex=str(hindex)
+    #numofdoc=str(numofdoc)
+    #OtherName=str(OtherName)
+    #subjectarea=str(subjectarea)
+    #testsubjA=str(testsubjA)
+
+    #print("0. AuthorName : ")
+    #print(AuthorName)
+    #print("1. H-Index : ")
+    #print(hindex)
+    #print("2. # of Documents : ")
+    #print(numofdoc)
+    #print("3. OtherName : ")
+    #print(OtherName)
+    #print("4. SubjectArea : ")
+    #print(subjectarea)
+    #print("5. Publication Range")
+    #print(PublicationRange)
+    #print("6. Author First Publication Year")
+    #print(AuthorPubFirst)
+    #print("7. Author Last Publication Year")
+    #print(AuthorPubLast)
+
+    temp_list=[]
+    temp_list.append(AuthorName)
+    temp_list.append(hindex)
+    temp_list.append(numofdoc)
+    temp_list.append(OtherName)
+    temp_list.append(subjectarea)
+    temp_list.append(PublicationRange)
+
+    #print(temp_list)
+
+    Total_List.append(temp_list)
+    
+print(Total_List)
