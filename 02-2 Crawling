@@ -1,0 +1,107 @@
+import csv
+import requests
+from bs4 import BeautifulSoup
+
+encoding='utf8'
+f=open ("AuthorID_AIYear_List.csv", "r", encoding='utf-8')
+reader=csv.reader(f)
+g = open("Crawling_Result_181114.txt", 'w', encoding=encoding)
+Total_List = []
+
+for line in reader:#AuthorCodeList or UniqueAuthorCodeList
+    ###########Address#################
+    AuthorIDNum=line[0]
+    req = requests.get("https://www.scopus.com/authid/detail.uri?origin=resultslist&authorId=%s&zone=" %AuthorIDNum)
+    soup = BeautifulSoup(req.text, 'html.parser')
+    print(AuthorIDNum)
+    html = req.text
+    header = req.headers
+    status = req.status_code
+    is_ok = req.ok
+
+    ###############Find Location########################
+    AuthorName = soup.select('title')
+    hindex = soup.select("#authorDetailsHindex > div > div.panel-body > span")
+    numofdoc = soup.select("#authorDetailsDocumentsByAuthor > div > div.panel-body > span")
+    OtherName = soup.find(id='otherNameFormatBadges')  # .find_all('span.badges')
+    subjectarea = soup.find(id='subjectAreaBadges')
+    PublicationRange = soup.select('div.marginTop1.h4.darkGrayText')  # .find_all('span.badges')
+
+    ##################PreProcessing: Name##########################
+    AuthorName = soup.find('title').text
+    AuthorName = str(AuthorName)
+    AuthorName = AuthorName.replace('Scopus - Author details (', ' ')
+    AuthorName = AuthorName.replace(')', ' ')
+    AuthorName = AuthorName.strip()
+
+    ################PreProcessing : Hindex, Number of Documentz, ####################
+    if hindex is None:
+        hindex="N/A"
+    else:
+        hindex=str(hindex)
+        hindex=hindex.replace('<span class="fontLarge">','')
+        hindex=hindex.replace('</span>', '')
+
+
+    #hindex = hindex.get_text()
+
+    if numofdoc is None:
+        numofdoc =  "N/A"
+    else:
+        numofdoc = str(numofdoc)
+        numofdoc = numofdoc.replace('</span>', '')
+        numofdoc = numofdoc.split('>')
+        numofdoc = numofdoc[1]
+
+    #numofdoc = numofdoc.get_text()
+
+    ###############PreProcessing : OtherName, #################################
+    if OtherName is None:
+        OtherName = "N/A"
+    else:
+        OtherName = str(OtherName)
+        OtherName = OtherName.replace('</span> <span class="badges">', ';')
+        OtherName = OtherName.replace(
+            '<div class="ellipsisContainer" id="otherNameFormatBadges"> <span class="badges">', ' ')
+        OtherName = OtherName.replace('</span> </div>', ' ')
+        OtherName = OtherName.strip()
+        OtherName = OtherName.split(';')
+
+    #################PreProcessing : Subject Area (text() 불가능)##############################
+    subjectarea = str(subjectarea)
+    subjectarea = subjectarea.replace('</span>', '')
+    subjectarea = subjectarea.replace('</div>', '')
+    subjectarea = subjectarea.strip()
+    subjectarea = subjectarea.split('<span class="badges">')
+    t = 0
+    for i in subjectarea:
+        subjectarea[t] = subjectarea[t].strip()
+        t = t + 1
+    del subjectarea[0]
+
+    ################PreProcessing : PublicationYear (text() 불가능)#################
+    PublicationRange = str(PublicationRange)
+    PublicationRange = PublicationRange.split(':')
+    PublicationRange = PublicationRange[-1]
+    PublicationRange = PublicationRange.split('\n</div>]')
+    PublicationRange = PublicationRange[0]
+    PublicationRange = PublicationRange.split('-')
+    AuthorPubFirst = PublicationRange[0]
+    AuthorPubLast = PublicationRange[1]
+
+    temp_list = []
+    temp_list.append(AuthorIDNum)
+    temp_list.append(AuthorName)
+    temp_list.append(hindex)
+    temp_list.append(numofdoc)
+    temp_list.append(line[1])
+    temp_list.append(line[2])
+    temp_list.append(PublicationRange[0])
+    temp_list.append(PublicationRange[1])
+    temp_list.append(subjectarea)
+    #temp_list.append(OtherName)
+    data = str(temp_list) + "\n"
+    g.write(data)
+g.close()
+f.close()
+print("Crawling Datalist is over")
